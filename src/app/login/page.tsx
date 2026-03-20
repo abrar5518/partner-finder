@@ -13,8 +13,8 @@ type LoginPageProps = {
 
 const loginMessages: Record<string, string> = {
   CredentialsSignin: "Invalid email or password.",
-  default: "Enter your email and password to continue.",
-  registered: "Account created successfully. You can sign in now.",
+  default: "Welcome back. Sign in to keep tracking your campaigns.",
+  registered: "Account created successfully. Sign in below to continue.",
 };
 
 export default async function LoginPage({ searchParams }: LoginPageProps) {
@@ -32,12 +32,12 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
 
   return (
     <AuthCard
-      badge="User Auth"
-      title="Login Page"
-      description="Sign in with your email and password to access your dashboard."
+      badge="Welcome back"
+      title="Sign in and open your crush dashboard"
+      description="Review campaign activity, keep sharing your links, and jump back into the experience without any backend changes."
       footer={{
         href: "/register",
-        label: "Need an account? Register",
+        label: "Need an account? Create one",
       }}
     >
       <LoginForm callbackUrl={callbackUrl} errorMessage={errorMessage} successMessage={successMessage} />

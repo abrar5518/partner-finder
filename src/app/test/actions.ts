@@ -9,6 +9,7 @@ type SubmitPublicTestInput = {
   testType?: string;
   answers: Prisma.InputJsonValue;
   website?: string;
+  reactionVideoPath?: string;
 };
 
 type SubmitPublicTestResult =
@@ -56,6 +57,7 @@ export async function submitPublicTestAction(
   const slug = input.slug.trim();
   const testType = input.testType ?? "comparison";
   const website = input.website?.trim() ?? "";
+  const reactionVideoPath = input.reactionVideoPath?.trim() ?? "";
   const answers = input.answers;
 
   if (website) {
@@ -207,6 +209,20 @@ export async function submitPublicTestAction(
     }
   }
 
+  const enrichedAnswers =
+    reactionVideoPath &&
+    typeof answers === "object" &&
+    answers !== null &&
+    !Array.isArray(answers)
+      ? ({
+          ...answers,
+          reactionVideo: {
+            path: reactionVideoPath,
+            recordedAt: new Date().toISOString(),
+          },
+        } as Prisma.InputJsonValue)
+      : answers;
+
   const campaign = await prisma.campaign.findUnique({
     where: { slug },
     select: {
@@ -225,7 +241,7 @@ export async function submitPublicTestAction(
   const response = await prisma.response.create({
     data: {
       campaignId: campaign.id,
-      answers,
+      answers: enrichedAnswers,
     },
   });
 

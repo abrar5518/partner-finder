@@ -12,11 +12,34 @@ type ShareToolsProps = {
   platforms: SharePlatform[];
 };
 
-const platformLabels: Record<SharePlatform, string> = {
-  whatsapp: "WhatsApp Share",
-  facebook: "Facebook Share",
-  twitter: "Twitter/X Share",
-  telegram: "Telegram Share",
+const platformMeta: Record<
+  SharePlatform,
+  {
+    label: string;
+    short: string;
+    accent: string;
+  }
+> = {
+  whatsapp: {
+    label: "WhatsApp",
+    short: "WA",
+    accent: "border-emerald-500/25 bg-emerald-500/10 text-emerald-200",
+  },
+  facebook: {
+    label: "Facebook",
+    short: "FB",
+    accent: "border-sky-500/25 bg-sky-500/10 text-sky-200",
+  },
+  twitter: {
+    label: "X",
+    short: "X",
+    accent: "border-slate-300/20 bg-white/5 text-slate-100",
+  },
+  telegram: {
+    label: "Telegram",
+    short: "TG",
+    accent: "border-cyan-500/25 bg-cyan-500/10 text-cyan-200",
+  },
 };
 
 function buildShareUrl(platform: SharePlatform, link: string, message: string) {
@@ -50,43 +73,47 @@ export function ShareTools({
     try {
       await navigator.clipboard.writeText(link);
       setCopied(true);
-      window.setTimeout(() => setCopied(false), 2000);
+      window.setTimeout(() => setCopied(false), 1800);
     } catch {
       setCopied(false);
     }
   }
 
   return (
-    <section className="rounded-3xl border border-white/10 bg-slate-900/50 p-6">
-      <h2 className="text-xl font-semibold text-white">{title}</h2>
-      <p className="mt-2 text-sm text-slate-400">{description}</p>
-
-      <div className="mt-5 rounded-2xl border border-cyan-400/20 bg-slate-950/80 p-4">
-        <p className="break-all text-sm text-cyan-200">{link}</p>
+    <section className="grid gap-6 p-6 lg:grid-cols-[1.1fr_0.9fr]">
+      <div className="space-y-3">
+        <span className="badge-user">Share campaign</span>
+        <h2 className="text-xl font-semibold text-white">{title}</h2>
+        <p className="max-w-2xl text-sm leading-6 text-[var(--text-body)]">{description}</p>
+        <div className="flex flex-wrap gap-3 pt-2">
+          {platforms.map((platform) => (
+            <a
+              key={platform}
+              href={buildShareUrl(platform, link, message)}
+              target="_blank"
+              rel="noreferrer"
+              className={`inline-flex items-center gap-3 rounded-2xl border px-4 py-3 text-sm font-medium ${platformMeta[platform].accent}`}
+            >
+              <span className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-current/20 bg-black/10 text-[11px] font-bold">
+                {platformMeta[platform].short}
+              </span>
+              {platformMeta[platform].label}
+            </a>
+          ))}
+        </div>
       </div>
 
-      <div className="mt-5 flex flex-wrap gap-3">
-        <button
-          type="button"
-          onClick={() => {
-            void handleCopy();
-          }}
-          className="rounded-2xl bg-cyan-300 px-4 py-3 text-sm font-semibold text-slate-950 transition hover:bg-cyan-200"
-        >
-          {copied ? "Copied!" : "Copy Link"}
+      <div className="glass-card rounded-[1.6rem] p-4">
+        <p className="text-sm font-medium text-white">Sharable URL</p>
+        <p className="mt-1 text-sm text-[var(--text-muted)]">
+          Copy once, paste anywhere. Great for stories, DMs, and groups.
+        </p>
+        <div className="mt-4 rounded-2xl border border-white/6 bg-black/20 p-3">
+          <p className="break-all font-mono text-sm text-rose-200">{link}</p>
+        </div>
+        <button type="button" onClick={() => void handleCopy()} className="btn-user mt-4 w-full">
+          {copied ? "Copied link" : "Copy link"}
         </button>
-
-        {platforms.map((platform) => (
-          <a
-            key={platform}
-            href={buildShareUrl(platform, link, message)}
-            target="_blank"
-            rel="noreferrer"
-            className="rounded-2xl border border-white/10 bg-slate-950/70 px-4 py-3 text-sm font-medium transition hover:border-cyan-300/40 hover:bg-slate-950"
-          >
-            {platformLabels[platform]}
-          </a>
-        ))}
       </div>
     </section>
   );

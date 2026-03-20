@@ -6,12 +6,14 @@ import { useFormStatus } from "react-dom";
 type SubmitButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
   children: ReactNode;
   pendingText?: string;
+  variant?: "user" | "admin";
 };
 
 export function SubmitButton({
   children,
   className = "",
   pendingText = "Submitting...",
+  variant = "user",
   ...props
 }: SubmitButtonProps) {
   const { pending } = useFormStatus();
@@ -20,7 +22,7 @@ export function SubmitButton({
     <button
       type="submit"
       disabled={pending}
-      className={`rounded-2xl bg-cyan-300 px-4 py-3 text-sm font-semibold text-slate-950 transition hover:bg-cyan-200 disabled:cursor-not-allowed disabled:opacity-60 ${className}`.trim()}
+      className={`${variant === "admin" ? "btn-admin" : "btn-user"} ${className}`.trim()}
       {...props}
     >
       {pending ? pendingText : children}

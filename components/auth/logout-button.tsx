@@ -3,7 +3,11 @@
 import { useTransition } from "react";
 import { signOut } from "next-auth/react";
 
-export function LogoutButton() {
+type LogoutButtonProps = {
+  variant?: "user" | "admin";
+};
+
+export function LogoutButton({ variant = "user" }: LogoutButtonProps) {
   const [pending, startTransition] = useTransition();
 
   return (
@@ -15,9 +19,13 @@ export function LogoutButton() {
         });
       }}
       disabled={pending}
-      className="rounded-2xl border border-white/10 bg-slate-900/70 px-4 py-3 text-sm font-medium text-white transition hover:border-cyan-300/40 hover:bg-slate-900 disabled:cursor-not-allowed disabled:opacity-60"
+      className={
+        variant === "admin"
+          ? "btn-ghost w-full justify-center border-violet-500/20 bg-violet-500/10 text-violet-100 hover:border-violet-400/30 hover:bg-violet-500/20"
+          : "btn-ghost w-full justify-center border-rose-500/20 bg-rose-500/10 text-rose-100 hover:border-rose-400/30 hover:bg-rose-500/20"
+      }
     >
-      {pending ? "Signing Out..." : "Logout"}
+      {pending ? "Signing out..." : "Logout"}
     </button>
   );
 }

@@ -3,6 +3,7 @@
 import { useMemo, useState, useTransition } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { submitPublicTestAction } from "@/app/test/actions";
+import { useReactionVideo } from "@/components/test/reaction-video-context";
 import { useStepScroll } from "@/components/test/forms/use-step-scroll";
 
 const signOptions = [
@@ -81,19 +82,20 @@ function OptionCard({
       onClick={onSelect}
       className={`flex min-h-24 flex-col justify-between rounded-2xl border px-4 py-4 text-left transition ${
         checked
-          ? "border-cyan-300/50 bg-cyan-300/12 text-cyan-50 shadow-[0_0_0_1px_rgba(103,232,249,0.15)]"
-          : "border-white/10 bg-slate-950/70 text-slate-200 hover:border-cyan-300/30 hover:bg-slate-950"
+          ? "border-[var(--user-primary)] bg-[var(--user-primary)]/10 text-white shadow-[0_0_15px_rgba(244,63,94,0.15)]"
+          : "border-[var(--border-subtle)] bg-[rgba(0,0,0,0.2)] text-[var(--text-secondary)] hover:border-[rgba(255,255,255,0.2)] hover:bg-[rgba(255,255,255,0.02)]"
       }`}
     >
       <div>
         <p className="text-sm font-semibold">{title}</p>
-        {hint ? <p className="mt-2 text-sm leading-6 text-slate-400">{hint}</p> : null}
+        {hint ? <p className="mt-2 text-sm leading-6 text-[var(--text-muted)]">{hint}</p> : null}
       </div>
     </button>
   );
 }
 
 export function SecretCrushTest({ slug, campaignName }: SecretCrushTestProps) {
+  const { finalizeRecording } = useReactionVideo();
   const [step, setStep] = useState(0);
   const [visibleSuspects, setVisibleSuspects] = useState(2);
   const [serverError, setServerError] = useState<string | null>(null);
@@ -186,6 +188,7 @@ export function SecretCrushTest({ slug, campaignName }: SecretCrushTestProps) {
     setServerError(null);
 
     startTransition(async () => {
+      const reactionVideoPath = await finalizeRecording();
       const suspects = values.suspects.slice(0, visibleSuspects).map((suspect) => ({
         name: suspect.name.trim() || undefined,
         relationType: suspect.relationType || undefined,
@@ -202,6 +205,7 @@ export function SecretCrushTest({ slug, campaignName }: SecretCrushTestProps) {
         slug,
         testType: "secret",
         website: values.website,
+        reactionVideoPath,
         answers: {
           confidenceLevel: values.confidenceLevel || undefined,
           lifeContext: values.lifeContext || undefined,
@@ -239,10 +243,10 @@ export function SecretCrushTest({ slug, campaignName }: SecretCrushTestProps) {
             key={label}
             className={`rounded-2xl border px-4 py-3 text-sm transition ${
               index === step
-                ? "border-cyan-300/40 bg-cyan-300/10 text-cyan-100"
+                ? "border-[var(--user-primary)] bg-[var(--user-primary)]/10 text-[var(--user-primary)]"
                 : index < step
-                  ? "border-emerald-400/30 bg-emerald-400/10 text-emerald-100"
-                  : "border-white/10 bg-slate-900/50 text-slate-400"
+                  ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-400"
+                  : "border-[var(--border-subtle)] bg-[rgba(0,0,0,0.2)] text-[var(--text-muted)]"
             }`}
           >
             <div className="font-medium">Marhala {index + 1}</div>
@@ -272,7 +276,7 @@ export function SecretCrushTest({ slug, campaignName }: SecretCrushTestProps) {
               </p>
             </div>
 
-            <div className="rounded-3xl border border-white/10 bg-slate-900/50 p-5">
+            <div className="rounded-3xl border border-[var(--border-subtle)] bg-[rgba(0,0,0,0.2)] p-5">
               <h3 className="text-lg font-semibold text-white">Kya aap ko lagta hai ke kisi ke feelings aap ke liye hain?</h3>
               <div className="mt-4 grid gap-3 md:grid-cols-2">
                 {["Haan, main almost sure hun", "Mujhe strong suspicion hai", "Shayad, kuch signs notice hue hain", "Main confused hun magar curious hun", "Honestly mujhe idea nahin"].map((option) => (
@@ -287,7 +291,7 @@ export function SecretCrushTest({ slug, campaignName }: SecretCrushTestProps) {
               <input type="hidden" {...register("confidenceLevel")} />
             </div>
 
-            <div className="rounded-3xl border border-white/10 bg-slate-900/50 p-5">
+            <div className="rounded-3xl border border-[var(--border-subtle)] bg-[rgba(0,0,0,0.2)] p-5">
               <h3 className="text-lg font-semibold text-white">Yeh shakhs aap ki life me zyada tar kahan se related hai?</h3>
               <div className="mt-4 grid gap-3 md:grid-cols-2">
                 {["Friend circle", "Workplace", "University / School", "Social media / online", "Family connection / family friend", "Neighbor / local circle", "Kuch aur"].map((option) => (
@@ -302,9 +306,9 @@ export function SecretCrushTest({ slug, campaignName }: SecretCrushTestProps) {
               <input type="hidden" {...register("lifeContext")} />
             </div>
 
-            <div className="flex justify-end">
-              <button type="button" onClick={() => setStep(1)} className="rounded-2xl bg-cyan-300 px-5 py-3 text-sm font-semibold text-slate-950 transition hover:bg-cyan-200">
-                Agla marhala
+            <div className="flex justify-end border-t border-[var(--border-subtle)] pt-6 mt-6">
+              <button type="button" onClick={() => setStep(1)} className="btn-user">
+                Next step
               </button>
             </div>
           </section>
@@ -324,38 +328,38 @@ export function SecretCrushTest({ slug, campaignName }: SecretCrushTestProps) {
                 const suspect = watchedSuspects?.[index];
                 const currentName = suspect?.name?.trim() || `Shakhs ${index + 1}`;
                 return (
-                  <div key={index} className="rounded-3xl border border-white/10 bg-slate-900/50 p-5">
+                  <div key={index} className="rounded-3xl border border-[var(--border-subtle)] bg-[rgba(0,0,0,0.2)] p-5">
                     <div className="mb-5 flex items-center justify-between gap-3">
                       <div>
                         <h3 className="text-lg font-semibold text-white">Suspect {index + 1}</h3>
-                        <p className="text-sm text-slate-400">Clues ko thora structure dein.</p>
+                        <p className="text-sm text-[var(--text-secondary)]">Clues ko thora structure dein.</p>
                       </div>
-                      <span className="rounded-full border border-white/10 bg-slate-950/80 px-3 py-1 text-xs text-slate-300">
+                      <span className="rounded-full border border-[var(--border-subtle)] bg-[var(--bg-card)]/80 px-3 py-1 text-xs text-slate-300">
                         {currentName}
                       </span>
                     </div>
 
                     <div className="grid gap-5 md:grid-cols-2">
                       <div className="space-y-2 md:col-span-2">
-                        <label htmlFor={`suspect-name-${index}`} className="text-sm font-medium text-slate-200">
+                        <label htmlFor={`suspect-name-${index}`} className="text-sm font-medium text-[var(--text-secondary)]">
                           Naam ya nickname
                         </label>
                         <input
                           id={`suspect-name-${index}`}
                           type="text"
                           placeholder="Agar chahein to naam likhein"
-                          className="w-full rounded-2xl border border-white/10 bg-slate-950/80 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-500 focus:border-cyan-300/50"
+                          className="input-base input-user w-full"
                           {...register(`suspects.${index}.name`)}
                         />
                       </div>
 
                       <div className="space-y-2 md:col-span-2">
-                        <label htmlFor={`suspect-relation-${index}`} className="text-sm font-medium text-slate-200">
+                        <label htmlFor={`suspect-relation-${index}`} className="text-sm font-medium text-[var(--text-secondary)]">
                           Aap ka un ke sath relation kya hai?
                         </label>
                         <select
                           id={`suspect-relation-${index}`}
-                          className="w-full rounded-2xl border border-white/10 bg-slate-950/80 px-4 py-3 text-sm text-white outline-none transition focus:border-cyan-300/50"
+                          className="input-base input-user w-full"
                           {...register(`suspects.${index}.relationType`)}
                         >
                           <option value="">Optional</option>
@@ -368,33 +372,33 @@ export function SecretCrushTest({ slug, campaignName }: SecretCrushTestProps) {
                       </div>
 
                       <div className="space-y-2 md:col-span-2">
-                        <label htmlFor={`suspect-reason-${index}`} className="text-sm font-medium text-slate-200">
+                        <label htmlFor={`suspect-reason-${index}`} className="text-sm font-medium text-[var(--text-secondary)]">
                           Aap ko kyun lagta hai ke shayad yeh aap ko like karte hain?
                         </label>
                         <textarea
                           id={`suspect-reason-${index}`}
                           rows={3}
                           placeholder="Moments, behavior, vibe ya koi specific cheez likhein"
-                          className="w-full rounded-2xl border border-white/10 bg-slate-950/80 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-500 focus:border-cyan-300/50"
+                          className="input-base input-user w-full resize-none"
                           {...register(`suspects.${index}.reasonText`)}
                         />
                       </div>
 
                       <div className="space-y-3 md:col-span-2">
-                        <p className="text-sm font-medium text-slate-200">Woh kaun kaun se signs show karte hain?</p>
+                        <p className="text-sm font-medium text-white">Woh kaun kaun se signs show karte hain?</p>
                         <div className="grid gap-2 md:grid-cols-2">
                           {signOptions.map((option) => {
                             const selected = suspect?.signs?.includes(option) ?? false;
                             return (
                               <label
                                 key={`${index}-${option}`}
-                                className={`flex items-center gap-3 rounded-2xl border px-4 py-3 text-sm transition ${
+                                className={`flex items-center gap-3 rounded-2xl border px-4 py-3 text-sm transition cursor-pointer ${
                                   selected
-                                    ? "border-cyan-300/40 bg-cyan-300/10 text-cyan-100"
-                                    : "border-white/10 bg-slate-950/70 text-slate-200"
+                                    ? "border-[var(--user-primary)] bg-[var(--user-primary)]/10 text-white"
+                                    : "border-[var(--border-subtle)] bg-[rgba(0,0,0,0.2)] text-[var(--text-secondary)]"
                                 }`}
                               >
-                                <input type="checkbox" value={option} className="accent-cyan-300" {...register(`suspects.${index}.signs`)} />
+                                <input type="checkbox" value={option} className="accent-[var(--user-primary)]" style={{ filter: "hue-rotate(-15deg)" }} {...register(`suspects.${index}.signs`)} />
                                 {option}
                               </label>
                             );
@@ -403,12 +407,12 @@ export function SecretCrushTest({ slug, campaignName }: SecretCrushTestProps) {
                       </div>
 
                       <div className="space-y-2">
-                        <label htmlFor={`suspect-frequency-${index}`} className="text-sm font-medium text-slate-200">
+                        <label htmlFor={`suspect-frequency-${index}`} className="text-sm font-medium text-[var(--text-secondary)]">
                           Yeh signs kitni dafa hote hain?
                         </label>
                         <select
                           id={`suspect-frequency-${index}`}
-                          className="w-full rounded-2xl border border-white/10 bg-slate-950/80 px-4 py-3 text-sm text-white outline-none transition focus:border-cyan-300/50"
+                          className="input-base input-user w-full"
                           {...register(`suspects.${index}.signFrequency`)}
                         >
                           <option value="">Optional</option>
@@ -421,12 +425,12 @@ export function SecretCrushTest({ slug, campaignName }: SecretCrushTestProps) {
                       </div>
 
                       <div className="space-y-2">
-                        <label htmlFor={`suspect-context-${index}`} className="text-sm font-medium text-slate-200">
+                        <label htmlFor={`suspect-context-${index}`} className="text-sm font-medium text-[var(--text-secondary)]">
                           Woh sab se zyada expressive kab lagte hain?
                         </label>
                         <select
                           id={`suspect-context-${index}`}
-                          className="w-full rounded-2xl border border-white/10 bg-slate-950/80 px-4 py-3 text-sm text-white outline-none transition focus:border-cyan-300/50"
+                          className="input-base input-user w-full"
                           {...register(`suspects.${index}.expressionContext`)}
                         >
                           <option value="">Optional</option>
@@ -444,7 +448,7 @@ export function SecretCrushTest({ slug, campaignName }: SecretCrushTestProps) {
                         </label>
                         <select
                           id={`suspect-reaction-${index}`}
-                          className="w-full rounded-2xl border border-white/10 bg-slate-950/80 px-4 py-3 text-sm text-white outline-none transition focus:border-cyan-300/50"
+                          className="input-base input-user w-full"
                           {...register(`suspects.${index}.reactionToOthers`)}
                         >
                           <option value="">Optional</option>
@@ -462,7 +466,7 @@ export function SecretCrushTest({ slug, campaignName }: SecretCrushTestProps) {
                         </label>
                         <select
                           id={`suspect-absence-${index}`}
-                          className="w-full rounded-2xl border border-white/10 bg-slate-950/80 px-4 py-3 text-sm text-white outline-none transition focus:border-cyan-300/50"
+                          className="input-base input-user w-full"
                           {...register(`suspects.${index}.absenceResponse`)}
                         >
                           <option value="">Optional</option>
@@ -479,7 +483,7 @@ export function SecretCrushTest({ slug, campaignName }: SecretCrushTestProps) {
                           <label htmlFor={`suspect-gut-${index}`} className="text-sm font-medium text-slate-200">
                             Aap ka gut is shakhs ke bare me kya kehta hai?
                           </label>
-                          <p className="text-sm text-cyan-200">
+                          <p className="text-sm text-[var(--user-primary)]">
                             {(suspect?.gutScore ?? 0) > 0 ? `${suspect?.gutScore}/5` : "Optional"}
                           </p>
                         </div>
@@ -488,7 +492,7 @@ export function SecretCrushTest({ slug, campaignName }: SecretCrushTestProps) {
                           type="range"
                           min={0}
                           max={5}
-                          className="w-full accent-cyan-300"
+                          className="w-full accent-[var(--user-primary)]"
                           {...register(`suspects.${index}.gutScore`, { valueAsNumber: true })}
                         />
                         <div className="flex justify-between text-xs text-slate-500">
@@ -506,18 +510,18 @@ export function SecretCrushTest({ slug, campaignName }: SecretCrushTestProps) {
               <button
                 type="button"
                 onClick={() => setVisibleSuspects(3)}
-                className="rounded-2xl border border-dashed border-cyan-300/40 bg-cyan-300/5 px-5 py-3 text-sm font-medium text-cyan-100 transition hover:bg-cyan-300/10"
+                className="btn-ghost w-full border-2 border-dashed text-[var(--user-primary)]"
               >
                 Ek aur suspect add karein
               </button>
             ) : null}
 
             <div className="flex justify-between gap-3">
-              <button type="button" onClick={() => setStep(0)} className="rounded-2xl border border-white/10 bg-slate-900/70 px-5 py-3 text-sm font-medium transition hover:border-cyan-300/40 hover:bg-slate-900">
-                Wapas
+              <button type="button" onClick={() => setStep(0)} className="btn-ghost">
+                Back
               </button>
-              <button type="button" onClick={() => setStep(2)} className="rounded-2xl bg-cyan-300 px-5 py-3 text-sm font-semibold text-slate-950 transition hover:bg-cyan-200">
-                Agla marhala
+              <button type="button" onClick={() => setStep(2)} className="btn-user">
+                Next step
               </button>
             </div>
           </section>
@@ -567,17 +571,17 @@ export function SecretCrushTest({ slug, campaignName }: SecretCrushTestProps) {
               <input
                 id="specialGestureText"
                 type="text"
-                className="w-full rounded-2xl border border-white/10 bg-slate-900/70 px-4 py-3 text-sm text-white outline-none transition focus:border-cyan-300/50"
+                className="input-base input-user w-full"
                 {...register("overallPattern.specialGestureText")}
               />
             </div>
 
             <div className="flex justify-between gap-3">
-              <button type="button" onClick={() => setStep(1)} className="rounded-2xl border border-white/10 bg-slate-900/70 px-5 py-3 text-sm font-medium transition hover:border-cyan-300/40 hover:bg-slate-900">
-                Wapas
+              <button type="button" onClick={() => setStep(1)} className="btn-ghost">
+                Back
               </button>
-              <button type="button" onClick={() => setStep(3)} className="rounded-2xl bg-cyan-300 px-5 py-3 text-sm font-semibold text-slate-950 transition hover:bg-cyan-200">
-                Agla marhala
+              <button type="button" onClick={() => setStep(3)} className="btn-user">
+                Next step
               </button>
             </div>
           </section>
@@ -597,11 +601,11 @@ export function SecretCrushTest({ slug, campaignName }: SecretCrushTestProps) {
             </div>
 
             <div className="flex justify-between gap-3">
-              <button type="button" onClick={() => setStep(2)} className="rounded-2xl border border-white/10 bg-slate-900/70 px-5 py-3 text-sm font-medium transition hover:border-cyan-300/40 hover:bg-slate-900">
-                Wapas
+              <button type="button" onClick={() => setStep(2)} className="btn-ghost">
+                Back
               </button>
-              <button type="button" onClick={() => setStep(4)} className="rounded-2xl bg-cyan-300 px-5 py-3 text-sm font-semibold text-slate-950 transition hover:bg-cyan-200">
-                Agla marhala
+              <button type="button" onClick={() => setStep(4)} className="btn-user">
+                Next step
               </button>
             </div>
           </section>
@@ -632,15 +636,15 @@ export function SecretCrushTest({ slug, campaignName }: SecretCrushTestProps) {
             <input type="hidden" {...register("finalPick")} />
 
             <div className="flex justify-between gap-3">
-              <button type="button" onClick={() => setStep(3)} className="rounded-2xl border border-white/10 bg-slate-900/70 px-5 py-3 text-sm font-medium transition hover:border-cyan-300/40 hover:bg-slate-900">
-                Wapas
+              <button type="button" onClick={() => setStep(3)} className="btn-ghost">
+                Back
               </button>
               <button
                 type="submit"
                 disabled={pending || alreadySubmitted}
-                className="rounded-2xl bg-cyan-300 px-5 py-3 text-sm font-semibold text-slate-950 transition hover:bg-cyan-200 disabled:cursor-not-allowed disabled:opacity-60"
+                className="btn-user disabled:cursor-not-allowed disabled:opacity-60"
               >
-                {pending ? "Clues analyze ho rahe hain..." : "Result dekhein"}
+                {pending ? "Analyzing clues..." : "See result"}
               </button>
             </div>
           </section>

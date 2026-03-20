@@ -18,6 +18,7 @@ export function ComparisonResponseDetails({
   answers,
   responseId,
 }: ComparisonResponseDetailsProps) {
+  const reactionVideoPath = answers.reactionVideo?.path?.trim();
   const candidates = Array.isArray(answers.candidates) ? answers.candidates : [];
   const reactions = Array.isArray(answers.emotionalPull?.messageOrPresenceReaction)
     ? answers.emotionalPull?.messageOrPresenceReaction ?? []
@@ -44,6 +45,19 @@ export function ComparisonResponseDetails({
   if (hasIdealData) {
     return (
       <div className="space-y-5">
+        {reactionVideoPath ? (
+          <div className="rounded-2xl border border-amber-500/20 bg-amber-500/10 p-4">
+            <p className="text-xs uppercase tracking-[0.2em] text-amber-100">Reaction video</p>
+            <a
+              href={reactionVideoPath}
+              target="_blank"
+              rel="noreferrer"
+              className="mt-2 inline-flex text-sm font-medium text-white underline underline-offset-4"
+            >
+              Open recorded video
+            </a>
+          </div>
+        ) : null}
         <div className="grid gap-4 md:grid-cols-2">
           {detailCard("Relationship style", answers.warmup?.relationshipStyle)}
           {detailCard("Relationship priority", answers.warmup?.relationshipPriority)}
@@ -77,6 +91,19 @@ export function ComparisonResponseDetails({
 
     return (
       <div className="space-y-5">
+        {reactionVideoPath ? (
+          <div className="rounded-2xl border border-amber-500/20 bg-amber-500/10 p-4">
+            <p className="text-xs uppercase tracking-[0.2em] text-amber-100">Reaction video</p>
+            <a
+              href={reactionVideoPath}
+              target="_blank"
+              rel="noreferrer"
+              className="mt-2 inline-flex text-sm font-medium text-white underline underline-offset-4"
+            >
+              Open recorded video
+            </a>
+          </div>
+        ) : null}
         <div className="grid gap-4 md:grid-cols-2">
           {detailCard("Confidence level", answers.confidenceLevel)}
           {detailCard("Life context", answers.lifeContext)}
@@ -128,6 +155,19 @@ export function ComparisonResponseDetails({
   if (hasPersonalityData) {
     return (
       <div className="space-y-5">
+        {reactionVideoPath ? (
+          <div className="rounded-2xl border border-amber-500/20 bg-amber-500/10 p-4">
+            <p className="text-xs uppercase tracking-[0.2em] text-amber-100">Reaction video</p>
+            <a
+              href={reactionVideoPath}
+              target="_blank"
+              rel="noreferrer"
+              className="mt-2 inline-flex text-sm font-medium text-white underline underline-offset-4"
+            >
+              Open recorded video
+            </a>
+          </div>
+        ) : null}
         <div className="grid gap-4 md:grid-cols-2">
           {detailCard("Emotional expression", answers.personalityProfile?.emotionalExpression)}
           {detailCard("Relationship fear", answers.personalityProfile?.relationshipFear)}
@@ -202,6 +242,19 @@ export function ComparisonResponseDetails({
 
   return (
     <div className="space-y-5">
+      {reactionVideoPath ? (
+        <div className="rounded-2xl border border-amber-500/20 bg-amber-500/10 p-4">
+          <p className="text-xs uppercase tracking-[0.2em] text-amber-100">Reaction video</p>
+          <a
+            href={reactionVideoPath}
+            target="_blank"
+            rel="noreferrer"
+            className="mt-2 inline-flex text-sm font-medium text-white underline underline-offset-4"
+          >
+            Open recorded video
+          </a>
+        </div>
+      ) : null}
       <div className="grid gap-4">
         {candidates.map((candidate, candidateIndex) => {
           const reaction = reactions.find((item) => item.candidateName === candidate.name);

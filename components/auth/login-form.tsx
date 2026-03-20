@@ -15,11 +15,12 @@ export function LoginForm({
   successMessage,
 }: LoginFormProps) {
   const [pending, startTransition] = useTransition();
+  const [showPassword, setShowPassword] = useState(false);
   const [formError, setFormError] = useState<string | undefined>(errorMessage);
 
   return (
     <form
-      className="space-y-4"
+      className="space-y-5"
       onSubmit={(event) => {
         event.preventDefault();
         setFormError(undefined);
@@ -46,20 +47,20 @@ export function LoginForm({
       }}
     >
       {successMessage ? (
-        <div className="rounded-2xl border border-emerald-400/30 bg-emerald-400/10 px-4 py-3 text-sm text-emerald-100">
+        <div className="rounded-2xl border border-emerald-500/25 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-100">
           {successMessage}
         </div>
       ) : null}
 
       {formError ? (
-        <div className="rounded-2xl border border-rose-400/30 bg-rose-400/10 px-4 py-3 text-sm text-rose-100">
+        <div className="rounded-2xl border border-rose-500/25 bg-rose-500/10 px-4 py-3 text-sm text-rose-100">
           {formError}
         </div>
       ) : null}
 
       <div className="space-y-2">
-        <label htmlFor="email" className="text-sm font-medium text-slate-200">
-          Email
+        <label htmlFor="email" className="text-sm font-medium text-[var(--text-body)]">
+          Email address
         </label>
         <input
           id="email"
@@ -67,32 +68,47 @@ export function LoginForm({
           type="email"
           required
           autoComplete="email"
-          className="w-full rounded-2xl border border-white/10 bg-slate-900/70 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-500 focus:border-cyan-300/50"
+          className="input-base input-user"
           placeholder="you@example.com"
         />
+        <p className="text-xs leading-5 text-[var(--text-muted)]">
+          Use the same email you created your campaigns with.
+        </p>
       </div>
 
       <div className="space-y-2">
-        <label htmlFor="password" className="text-sm font-medium text-slate-200">
-          Password
-        </label>
+        <div className="flex items-center justify-between gap-3">
+          <label htmlFor="password" className="text-sm font-medium text-[var(--text-body)]">
+            Password
+          </label>
+          <button
+            type="button"
+            onClick={() => setShowPassword((value) => !value)}
+            className="text-xs font-medium text-rose-200 hover:text-white"
+          >
+            {showPassword ? "Hide" : "Show"}
+          </button>
+        </div>
         <input
           id="password"
           name="password"
-          type="password"
+          type={showPassword ? "text" : "password"}
           required
           autoComplete="current-password"
-          className="w-full rounded-2xl border border-white/10 bg-slate-900/70 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-500 focus:border-cyan-300/50"
+          className="input-base input-user"
           placeholder="Enter your password"
         />
+        <p className="text-xs leading-5 text-[var(--text-muted)]">
+          A secure sign-in with instant redirect back to your dashboard.
+        </p>
       </div>
 
-      <button
-        type="submit"
-        disabled={pending}
-        className="w-full rounded-2xl bg-cyan-300 px-4 py-3 text-sm font-semibold text-slate-950 transition hover:bg-cyan-200 disabled:cursor-not-allowed disabled:opacity-60"
-      >
-        {pending ? "Signing In..." : "Login"}
+      <div className="rounded-2xl border border-white/8 bg-white/4 px-4 py-3 text-sm text-[var(--text-body)]">
+        New here? Register first, then come back to view your analytics and response trends.
+      </div>
+
+      <button type="submit" disabled={pending} className="btn-user w-full">
+        {pending ? "Signing in..." : "Sign in"}
       </button>
     </form>
   );

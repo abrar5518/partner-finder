@@ -299,5 +299,9 @@ export type CampaignResponseAnswers = Prisma.JsonObject & {
     deepSoulmate?: number;
   };
   personalityArchetype?: string;
+  reactionVideo?: {
+    path?: string;
+    recordedAt?: string;
+  };
   submittedAt?: string;
 };

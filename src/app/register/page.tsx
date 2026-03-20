@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { redirect } from "next/navigation";
 import { AuthCard } from "@/components/ui/auth-card";
 import { SubmitButton } from "@/components/ui/submit-button";
@@ -37,79 +36,80 @@ export default async function RegisterPage({ searchParams }: RegisterPageProps) 
 
   return (
     <AuthCard
-      badge="User Auth"
-      title="Register Page"
-      description="Create an account with email and password. Passwords are hashed before they are stored."
+      badge="Create account"
+      title="Start building your first anonymous test"
+      description="Create your account to unlock campaign creation, response analytics, and a cleaner dashboard experience from day one."
       footer={{
         href: "/login",
-        label: "Already have an account? Login",
+        label: "Already registered? Sign in",
       }}
     >
-      <form action={registerUser} className="space-y-4">
+      <form action={registerUser} className="space-y-5">
         {errorMessage ? (
-          <div className="rounded-2xl border border-rose-400/30 bg-rose-400/10 px-4 py-3 text-sm text-rose-100">
+          <div className="rounded-2xl border border-rose-500/25 bg-rose-500/10 px-4 py-3 text-sm text-rose-100">
             {errorMessage}
             {minLengthHint}
           </div>
         ) : null}
 
         <div className="space-y-2">
-          <label htmlFor="email" className="text-sm font-medium text-slate-200">
-            Email
+          <label htmlFor="email" className="text-sm font-medium text-[var(--text-body)]">
+            Email address
           </label>
           <input
             id="email"
             name="email"
             type="email"
             required
-            className="w-full rounded-2xl border border-white/10 bg-slate-900/70 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-500 focus:border-cyan-300/50"
+            className="input-base input-user"
             placeholder="you@example.com"
           />
+          <p className="text-xs leading-5 text-[var(--text-muted)]">
+            This becomes the identity shown in your sidebar and dashboards.
+          </p>
         </div>
 
-        <div className="space-y-2">
-          <label htmlFor="password" className="text-sm font-medium text-slate-200">
-            Password
-          </label>
-          <input
-            id="password"
-            name="password"
-            type="password"
-            required
-            minLength={6}
-            className="w-full rounded-2xl border border-white/10 bg-slate-900/70 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-500 focus:border-cyan-300/50"
-            placeholder="At least 6 characters"
-          />
+        <div className="grid gap-5 sm:grid-cols-2">
+          <div className="space-y-2">
+            <label htmlFor="password" className="text-sm font-medium text-[var(--text-body)]">
+              Password
+            </label>
+            <input
+              id="password"
+              name="password"
+              type="password"
+              required
+              minLength={6}
+              className="input-base input-user"
+              placeholder="At least 6 characters"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <label htmlFor="confirmPassword" className="text-sm font-medium text-[var(--text-body)]">
+              Confirm password
+            </label>
+            <input
+              id="confirmPassword"
+              name="confirmPassword"
+              type="password"
+              required
+              minLength={6}
+              className="input-base input-user"
+              placeholder="Repeat your password"
+            />
+          </div>
         </div>
 
-        <div className="space-y-2">
-          <label
-            htmlFor="confirmPassword"
-            className="text-sm font-medium text-slate-200"
-          >
-            Confirm Password
-          </label>
-          <input
-            id="confirmPassword"
-            name="confirmPassword"
-            type="password"
-            required
-            minLength={6}
-            className="w-full rounded-2xl border border-white/10 bg-slate-900/70 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-500 focus:border-cyan-300/50"
-            placeholder="Repeat your password"
-          />
+        <div className="rounded-2xl border border-white/8 bg-white/4 px-4 py-3 text-sm leading-6 text-[var(--text-body)]">
+          You will land in the user dashboard after sign-in, while admins keep a separate purple
+          control area.
         </div>
 
-        <SubmitButton className="w-full">Create Account</SubmitButton>
+        <SubmitButton className="w-full" pendingText="Creating account...">
+          Create account
+        </SubmitButton>
       </form>
-
-      <p className="text-xs text-slate-400">
-        After registration you will be redirected to{" "}
-        <Link href="/login" className="text-cyan-200 underline underline-offset-4">
-          login
-        </Link>
-        .
-      </p>
     </AuthCard>
   );
 }

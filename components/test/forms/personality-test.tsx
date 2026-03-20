@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { submitPublicTestAction } from "@/app/test/actions";
+import { useReactionVideo } from "@/components/test/reaction-video-context";
 
 type PersonalityValues = {
   personalityProfile: {
@@ -128,18 +129,26 @@ function OptionCard({
       type="button"
       aria-pressed={checked}
       onClick={onSelect}
-      className={`flex min-h-24 items-center rounded-2xl border px-4 py-4 text-left text-sm transition ${
+      className={`flex min-h-24 items-center justify-between rounded-2xl border px-4 py-4 text-left transition ${
         checked
-          ? "border-cyan-300/50 bg-cyan-300/12 text-cyan-50 shadow-[0_0_0_1px_rgba(103,232,249,0.15)]"
-          : "border-white/10 bg-slate-950/70 text-slate-200 hover:border-cyan-300/30 hover:bg-slate-950"
+          ? "border-[var(--user-primary)] bg-[var(--user-primary)]/10 text-white shadow-[0_0_15px_rgba(244,63,94,0.15)]"
+          : "border-[var(--border-subtle)] bg-[rgba(0,0,0,0.2)] text-[var(--text-secondary)] hover:border-[rgba(255,255,255,0.2)] hover:bg-[rgba(255,255,255,0.02)]"
       }`}
     >
-      {title}
+      <span className="text-sm font-semibold">{title}</span>
+      <span className={`rounded-full border px-2 py-1 text-[11px] uppercase tracking-[0.18em] ${
+        checked 
+          ? "border-[var(--user-primary)]/40 bg-[var(--user-primary)]/20 text-[var(--user-primary)]" 
+          : "border-[var(--border-subtle)] bg-transparent text-[var(--text-muted)]"
+      }`}>
+        {checked ? "Select" : "Pick"}
+      </span>
     </button>
   );
 }
 
 export function PersonalityTest({ slug, campaignName }: PersonalityTestProps) {
+  const { finalizeRecording } = useReactionVideo();
   const [serverError, setServerError] = useState<string | null>(null);
   const [alreadySubmitted] = useState(
     () =>
@@ -200,10 +209,12 @@ export function PersonalityTest({ slug, campaignName }: PersonalityTestProps) {
     setServerError(null);
 
     startTransition(async () => {
+      const reactionVideoPath = await finalizeRecording();
       const result = await submitPublicTestAction({
         slug,
         testType: "personality",
         website: values.website,
+        reactionVideoPath,
         answers: {
           personalityProfile: {
             emotionalExpression: values.personalityProfile.emotionalExpression || undefined,
@@ -254,8 +265,8 @@ export function PersonalityTest({ slug, campaignName }: PersonalityTestProps) {
 
       <div className="grid gap-4">
         {questions.map((question) => (
-          <div key={question.key} className="rounded-3xl border border-white/10 bg-slate-900/50 p-5">
-            <p className="text-sm font-medium uppercase tracking-[0.2em] text-cyan-200">{question.title}</p>
+          <div key={question.key} className="rounded-3xl border border-[var(--border-subtle)] bg-[rgba(0,0,0,0.2)] p-5">
+            <p className="text-sm font-medium uppercase tracking-[0.2em] text-[var(--user-primary)]">{question.title}</p>
             <h3 className="mt-2 text-lg font-semibold text-white">{question.subtitle}</h3>
             <div className="mt-4 grid gap-3 md:grid-cols-2">
               {question.options.map((option) => (
@@ -276,17 +287,19 @@ export function PersonalityTest({ slug, campaignName }: PersonalityTestProps) {
         ))}
       </div>
 
-      <div className="rounded-3xl border border-cyan-400/20 bg-cyan-400/5 p-4 text-sm leading-6 text-slate-300">
+      <div className="rounded-3xl border border-[var(--border-subtle)] bg-[rgba(0,0,0,0.2)] p-4 text-sm leading-6 text-[var(--text-secondary)]">
         Aap ki choices attachment style, emotional intensity, aur independence preference ke bare me clues deti hain.
       </div>
 
-      <button
-        type="submit"
-        disabled={pending || alreadySubmitted}
-        className="rounded-2xl bg-cyan-300 px-5 py-3 text-sm font-semibold text-slate-950 transition hover:bg-cyan-200 disabled:cursor-not-allowed disabled:opacity-60"
-      >
-        {pending ? "Love style analyze ho rahi hai..." : "Result dekhein"}
-      </button>
+      <div className="flex justify-end border-t border-[var(--border-subtle)] pt-6 mt-6">
+        <button
+          type="submit"
+          disabled={pending || alreadySubmitted}
+          className="btn-user shadow-[0_0_20px_rgba(244,63,94,0.3)] hover:shadow-[0_0_30px_rgba(244,63,94,0.5)] disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:shadow-[0_0_20px_rgba(244,63,94,0.3)]"
+        >
+          {pending ? "Analyzing love style..." : "See result"}
+        </button>
+      </div>
     </form>
   );
 }

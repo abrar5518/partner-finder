@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { submitPublicTestAction } from "@/app/test/actions";
+import { useReactionVideo } from "@/components/test/reaction-video-context";
 import { useStepScroll } from "@/components/test/forms/use-step-scroll";
 
 type IdealPartnerValues = {
@@ -65,12 +66,16 @@ function OptionCard({
       onClick={onSelect}
       className={`flex min-h-24 items-center justify-between rounded-2xl border px-4 py-4 text-left transition ${
         checked
-          ? "border-cyan-300/50 bg-cyan-300/12 text-cyan-50 shadow-[0_0_0_1px_rgba(103,232,249,0.15)]"
-          : "border-white/10 bg-slate-950/70 text-slate-200 hover:border-cyan-300/30 hover:bg-slate-950"
+          ? "border-[var(--user-primary)] bg-[var(--user-primary)]/10 text-white shadow-[0_0_15px_rgba(244,63,94,0.15)]"
+          : "border-[var(--border-subtle)] bg-[rgba(0,0,0,0.2)] text-[var(--text-secondary)] hover:border-[rgba(255,255,255,0.2)] hover:bg-[rgba(255,255,255,0.02)]"
       }`}
     >
       <span className="text-sm font-semibold">{title}</span>
-      <span className="rounded-full border border-white/10 bg-slate-900/80 px-2 py-1 text-[11px] uppercase tracking-[0.18em] text-slate-400">
+      <span className={`rounded-full border px-2 py-1 text-[11px] uppercase tracking-[0.18em] ${
+        checked 
+          ? "border-[var(--user-primary)]/40 bg-[var(--user-primary)]/20 text-[var(--user-primary)]" 
+          : "border-[var(--border-subtle)] bg-transparent text-[var(--text-muted)]"
+      }`}>
         {checked ? "Select" : "Pick"}
       </span>
     </button>
@@ -78,6 +83,7 @@ function OptionCard({
 }
 
 export function IdealPartnerTest({ slug, campaignName }: IdealPartnerTestProps) {
+  const { finalizeRecording } = useReactionVideo();
   const [step, setStep] = useState(0);
   const [serverError, setServerError] = useState<string | null>(null);
   const [alreadySubmitted] = useState(
@@ -134,10 +140,12 @@ export function IdealPartnerTest({ slug, campaignName }: IdealPartnerTestProps) 
     setServerError(null);
 
     startTransition(async () => {
+      const reactionVideoPath = await finalizeRecording();
       const result = await submitPublicTestAction({
         slug,
         testType: "ideal",
         website: values.website,
+        reactionVideoPath,
         answers: {
           warmup: {
             relationshipStyle: values.warmup.relationshipStyle || undefined,
@@ -188,10 +196,10 @@ export function IdealPartnerTest({ slug, campaignName }: IdealPartnerTestProps) 
             key={label}
             className={`rounded-2xl border px-4 py-3 text-sm transition ${
               index === step
-                ? "border-cyan-300/40 bg-cyan-300/10 text-cyan-100"
+                ? "border-[var(--user-primary)] bg-[var(--user-primary)]/10 text-[var(--user-primary)]"
                 : index < step
-                  ? "border-emerald-400/30 bg-emerald-400/10 text-emerald-100"
-                  : "border-white/10 bg-slate-900/50 text-slate-400"
+                  ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-400"
+                  : "border-[var(--border-subtle)] bg-[rgba(0,0,0,0.2)] text-[var(--text-muted)]"
             }`}
           >
             <div className="font-medium">Marhala {index + 1}</div>
@@ -221,7 +229,7 @@ export function IdealPartnerTest({ slug, campaignName }: IdealPartnerTestProps) 
               </p>
             </div>
 
-            <div className="rounded-3xl border border-white/10 bg-slate-900/50 p-5">
+            <div className="rounded-3xl border border-[var(--border-subtle)] bg-[rgba(0,0,0,0.2)] p-5">
               <h3 className="text-lg font-semibold text-white">Aap apne aap ko relationships me kaise describe karte hain?</h3>
               <div className="mt-4 grid gap-3 md:grid-cols-2">
                 {["Romantic aur expressive", "Calm aur loyal", "Funny aur playful", "Practical aur realistic", "Deep aur emotional"].map((option) => (
@@ -236,7 +244,7 @@ export function IdealPartnerTest({ slug, campaignName }: IdealPartnerTestProps) 
               <input type="hidden" {...register("warmup.relationshipStyle")} />
             </div>
 
-            <div className="rounded-3xl border border-white/10 bg-slate-900/50 p-5">
+            <div className="rounded-3xl border border-[var(--border-subtle)] bg-[rgba(0,0,0,0.2)] p-5">
               <h3 className="text-lg font-semibold text-white">Relationship me aap ke liye sab se zyada kya matter karta hai?</h3>
               <div className="mt-4 grid gap-3 md:grid-cols-2">
                 {["Trust", "Love aur affection", "Emotional understanding", "Stability aur security", "Fun aur adventure"].map((option) => (
@@ -251,9 +259,9 @@ export function IdealPartnerTest({ slug, campaignName }: IdealPartnerTestProps) 
               <input type="hidden" {...register("warmup.relationshipPriority")} />
             </div>
 
-            <div className="flex justify-end">
-              <button type="button" onClick={() => setStep(1)} className="rounded-2xl bg-cyan-300 px-5 py-3 text-sm font-semibold text-slate-950 transition hover:bg-cyan-200">
-                Agla marhala
+            <div className="flex justify-end border-t border-[var(--border-subtle)] pt-6 mt-6">
+              <button type="button" onClick={() => setStep(1)} className="btn-user">
+                Next step
               </button>
             </div>
           </section>
@@ -266,7 +274,7 @@ export function IdealPartnerTest({ slug, campaignName }: IdealPartnerTestProps) 
               <p className="text-sm leading-6 text-slate-400">Yahan se aap ki true relationship expectations nikalti hain.</p>
             </div>
 
-            <div className="rounded-3xl border border-white/10 bg-slate-900/50 p-5">
+            <div className="rounded-3xl border border-[var(--border-subtle)] bg-[rgba(0,0,0,0.2)] p-5">
               <h3 className="text-lg font-semibold text-white">Jab aap stress me hote hain to kis type ka partner support best lagta hai?</h3>
               <div className="mt-4 grid gap-3 md:grid-cols-2">
                 {["Jo khamoshi se sunay", "Jo advice de", "Jo fun se distract kare", "Jo emotional comfort de", "Jo mujhe space de"].map((option) => (
@@ -281,7 +289,7 @@ export function IdealPartnerTest({ slug, campaignName }: IdealPartnerTestProps) 
               <input type="hidden" {...register("emotionalNeeds.stressSupport")} />
             </div>
 
-            <div className="rounded-3xl border border-white/10 bg-slate-900/50 p-5">
+            <div className="rounded-3xl border border-[var(--border-subtle)] bg-[rgba(0,0,0,0.2)] p-5">
               <h3 className="text-lg font-semibold text-white">Ideal tor par aap partner se kitni communication pasand karte hain?</h3>
               <div className="mt-4 grid gap-3 md:grid-cols-2">
                 {["Sara din chat", "Roz kuch meaningful baatein", "Roz magar balanced", "Haftay me chand dafa", "Sirf jab zaroorat ho"].map((option) => (
@@ -296,7 +304,7 @@ export function IdealPartnerTest({ slug, campaignName }: IdealPartnerTestProps) 
               <input type="hidden" {...register("emotionalNeeds.communicationStyle")} />
             </div>
 
-            <div className="rounded-3xl border border-white/10 bg-slate-900/50 p-5">
+            <div className="rounded-3xl border border-[var(--border-subtle)] bg-[rgba(0,0,0,0.2)] p-5">
               <h3 className="text-lg font-semibold text-white">Aap ko sab se zyada kis cheez se mehsoos hota hai ke aap loved hain?</h3>
               <div className="mt-4 grid gap-3 md:grid-cols-2">
                 {["Compliments aur sweet words", "Quality time", "Physical affection", "Helpful actions", "Loyalty aur trust"].map((option) => (
@@ -311,12 +319,12 @@ export function IdealPartnerTest({ slug, campaignName }: IdealPartnerTestProps) 
               <input type="hidden" {...register("emotionalNeeds.loveLanguage")} />
             </div>
 
-            <div className="flex justify-between gap-3">
-              <button type="button" onClick={() => setStep(0)} className="rounded-2xl border border-white/10 bg-slate-900/70 px-5 py-3 text-sm font-medium transition hover:border-cyan-300/40 hover:bg-slate-900">
-                Wapas
+            <div className="flex justify-between gap-3 border-t border-[var(--border-subtle)] pt-6 mt-6">
+              <button type="button" onClick={() => setStep(0)} className="btn-ghost">
+                Back
               </button>
-              <button type="button" onClick={() => setStep(2)} className="rounded-2xl bg-cyan-300 px-5 py-3 text-sm font-semibold text-slate-950 transition hover:bg-cyan-200">
-                Agla marhala
+              <button type="button" onClick={() => setStep(2)} className="btn-user">
+                Next step
               </button>
             </div>
           </section>
@@ -329,7 +337,7 @@ export function IdealPartnerTest({ slug, campaignName }: IdealPartnerTestProps) 
               <p className="text-sm leading-6 text-slate-400">Yeh section daily life aur personality fit ko check karta hai.</p>
             </div>
 
-            <div className="rounded-3xl border border-white/10 bg-slate-900/50 p-5">
+            <div className="rounded-3xl border border-[var(--border-subtle)] bg-[rgba(0,0,0,0.2)] p-5">
               <h3 className="text-lg font-semibold text-white">Aap partner ke sath kis type ka lifestyle prefer karte hain?</h3>
               <div className="mt-4 grid gap-3 md:grid-cols-2">
                 {["Calm aur peaceful life", "Travel aur adventure", "Balanced career aur relationship", "Family-focused life", "Social aur outgoing life"].map((option) => (
@@ -344,7 +352,7 @@ export function IdealPartnerTest({ slug, campaignName }: IdealPartnerTestProps) 
               <input type="hidden" {...register("lifestyleCompatibility.preferredLifestyle")} />
             </div>
 
-            <div className="rounded-3xl border border-white/10 bg-slate-900/50 p-5">
+            <div className="rounded-3xl border border-[var(--border-subtle)] bg-[rgba(0,0,0,0.2)] p-5">
               <h3 className="text-lg font-semibold text-white">Aap ko kis type ki personality sab se zyada attract karti hai?</h3>
               <div className="mt-4 grid gap-3 md:grid-cols-2">
                 {["Confident aur strong", "Kind aur gentle", "Funny aur energetic", "Intelligent aur thoughtful", "Calm aur mature"].map((option) => (
@@ -359,10 +367,10 @@ export function IdealPartnerTest({ slug, campaignName }: IdealPartnerTestProps) 
               <input type="hidden" {...register("lifestyleCompatibility.attractivePersonality")} />
             </div>
 
-            <div className="rounded-3xl border border-white/10 bg-slate-900/50 p-5">
+            <div className="rounded-3xl border border-[var(--border-subtle)] bg-[rgba(0,0,0,0.2)] p-5">
               <div className="flex items-center justify-between gap-3">
                 <h3 className="text-lg font-semibold text-white">Partner me ambition aap ke liye kitni important hai?</h3>
-                <p className="text-sm text-cyan-200">
+                <p className="text-sm text-[var(--user-primary)]">
                   {watchedLifestyle?.ambitionLevel > 0 ? `${watchedLifestyle.ambitionLevel}/5` : "Optional"}
                 </p>
               </div>
@@ -370,7 +378,8 @@ export function IdealPartnerTest({ slug, campaignName }: IdealPartnerTestProps) 
                 type="range"
                 min={0}
                 max={5}
-                className="mt-5 w-full accent-cyan-300"
+                className="mt-5 w-full accent-[var(--user-primary)]"
+                style={{ filter: "hue-rotate(-15deg)" }}
                 {...register("lifestyleCompatibility.ambitionLevel", { valueAsNumber: true })}
               />
               <div className="mt-2 flex justify-between text-xs text-slate-500">
@@ -379,12 +388,12 @@ export function IdealPartnerTest({ slug, campaignName }: IdealPartnerTestProps) 
               </div>
             </div>
 
-            <div className="flex justify-between gap-3">
-              <button type="button" onClick={() => setStep(1)} className="rounded-2xl border border-white/10 bg-slate-900/70 px-5 py-3 text-sm font-medium transition hover:border-cyan-300/40 hover:bg-slate-900">
-                Wapas
+            <div className="flex justify-between gap-3 border-t border-[var(--border-subtle)] pt-6 mt-6">
+              <button type="button" onClick={() => setStep(1)} className="btn-ghost">
+                Back
               </button>
-              <button type="button" onClick={() => setStep(3)} className="rounded-2xl bg-cyan-300 px-5 py-3 text-sm font-semibold text-slate-950 transition hover:bg-cyan-200">
-                Agla marhala
+              <button type="button" onClick={() => setStep(3)} className="btn-user">
+                Next step
               </button>
             </div>
           </section>
@@ -397,7 +406,7 @@ export function IdealPartnerTest({ slug, campaignName }: IdealPartnerTestProps) 
               <p className="text-sm leading-6 text-slate-400">Yeh sawal aap ki natural attraction ko pakarte hain.</p>
             </div>
 
-            <div className="rounded-3xl border border-white/10 bg-slate-900/50 p-5">
+            <div className="rounded-3xl border border-[var(--border-subtle)] bg-[rgba(0,0,0,0.2)] p-5">
               <h3 className="text-lg font-semibold text-white">Aap ko kis type ki vibe sab se zyada attract karti hai?</h3>
               <div className="mt-4 grid gap-3 md:grid-cols-2">
                 {["Protective aur caring", "Charming aur romantic", "Mysterious aur deep", "Fun aur playful", "Calm aur stable"].map((option) => (
@@ -412,7 +421,7 @@ export function IdealPartnerTest({ slug, campaignName }: IdealPartnerTestProps) 
               <input type="hidden" {...register("attractionChemistry.attractiveVibe")} />
             </div>
 
-            <div className="rounded-3xl border border-white/10 bg-slate-900/50 p-5">
+            <div className="rounded-3xl border border-[var(--border-subtle)] bg-[rgba(0,0,0,0.2)] p-5">
               <h3 className="text-lg font-semibold text-white">Aap ko kisi me sab se pehle kya attract karta hai?</h3>
               <div className="mt-4 grid gap-3 md:grid-cols-2">
                 {["Un ki smile", "Un ki intelligence", "Un ki personality", "Un ka confidence", "Un ki kindness"].map((option) => (
@@ -427,12 +436,12 @@ export function IdealPartnerTest({ slug, campaignName }: IdealPartnerTestProps) 
               <input type="hidden" {...register("attractionChemistry.firstAttraction")} />
             </div>
 
-            <div className="flex justify-between gap-3">
-              <button type="button" onClick={() => setStep(2)} className="rounded-2xl border border-white/10 bg-slate-900/70 px-5 py-3 text-sm font-medium transition hover:border-cyan-300/40 hover:bg-slate-900">
-                Wapas
+            <div className="flex justify-between gap-3 border-t border-[var(--border-subtle)] pt-6 mt-6">
+              <button type="button" onClick={() => setStep(2)} className="btn-ghost">
+                Back
               </button>
-              <button type="button" onClick={() => setStep(4)} className="rounded-2xl bg-cyan-300 px-5 py-3 text-sm font-semibold text-slate-950 transition hover:bg-cyan-200">
-                Agla marhala
+              <button type="button" onClick={() => setStep(4)} className="btn-user">
+                Next step
               </button>
             </div>
           </section>
@@ -445,7 +454,7 @@ export function IdealPartnerTest({ slug, campaignName }: IdealPartnerTestProps) 
               <p className="text-sm leading-6 text-slate-400">Yahan aap ka long-term relationship direction samne aata hai.</p>
             </div>
 
-            <div className="rounded-3xl border border-white/10 bg-slate-900/50 p-5">
+            <div className="rounded-3xl border border-[var(--border-subtle)] bg-[rgba(0,0,0,0.2)] p-5">
               <h3 className="text-lg font-semibold text-white">Aap kis type ka future relationship chahte hain?</h3>
               <div className="mt-4 grid gap-3 md:grid-cols-2">
                 {["Long term commitment", "Marriage focused", "Serious relationship pehle", "Slow emotional connection", "Abhi explore kar raha hun"].map((option) => (
@@ -460,7 +469,7 @@ export function IdealPartnerTest({ slug, campaignName }: IdealPartnerTestProps) 
               <input type="hidden" {...register("futureVision.relationshipFuture")} />
             </div>
 
-            <div className="rounded-3xl border border-white/10 bg-slate-900/50 p-5">
+            <div className="rounded-3xl border border-[var(--border-subtle)] bg-[rgba(0,0,0,0.2)] p-5">
               <h3 className="text-lg font-semibold text-white">Aap ke liye kis cheez ki importance zyada hai?</h3>
               <div className="mt-4 grid gap-3 md:grid-cols-2">
                 {["Passion", "Stability", "Emotional connection", "Loyalty", "Mutual growth"].map((option) => (
@@ -475,12 +484,12 @@ export function IdealPartnerTest({ slug, campaignName }: IdealPartnerTestProps) 
               <input type="hidden" {...register("futureVision.topValue")} />
             </div>
 
-            <div className="flex justify-between gap-3">
-              <button type="button" onClick={() => setStep(3)} className="rounded-2xl border border-white/10 bg-slate-900/70 px-5 py-3 text-sm font-medium transition hover:border-cyan-300/40 hover:bg-slate-900">
-                Wapas
+            <div className="flex justify-between gap-3 border-t border-[var(--border-subtle)] pt-6 mt-6">
+              <button type="button" onClick={() => setStep(3)} className="btn-ghost">
+                Back
               </button>
-              <button type="button" onClick={() => setStep(5)} className="rounded-2xl bg-cyan-300 px-5 py-3 text-sm font-semibold text-slate-950 transition hover:bg-cyan-200">
-                Agla marhala
+              <button type="button" onClick={() => setStep(5)} className="btn-user">
+                Next step
               </button>
             </div>
           </section>
@@ -494,43 +503,43 @@ export function IdealPartnerTest({ slug, campaignName }: IdealPartnerTestProps) 
             </div>
 
             <div className="space-y-2">
-              <label htmlFor="dreamPartnerSummary" className="text-sm font-medium text-slate-200">
+              <label htmlFor="dreamPartnerSummary" className="text-sm font-medium text-[var(--text-secondary)]">
                 Apne dream partner ko chand alfaaz me describe karein
               </label>
               <textarea
                 id="dreamPartnerSummary"
                 rows={4}
-                className="w-full rounded-2xl border border-white/10 bg-slate-900/70 px-4 py-3 text-sm text-white outline-none transition focus:border-cyan-300/50"
+                className="input-base input-user w-full resize-none"
                 {...register("reflections.dreamPartnerSummary")}
               />
             </div>
 
             <div className="space-y-2">
-              <label htmlFor="nonNegotiableQuality" className="text-sm font-medium text-slate-200">
+              <label htmlFor="nonNegotiableQuality" className="text-sm font-medium text-[var(--text-secondary)]">
                 Aisi kaunsi ek quality hai jis par aap bilkul compromise nahin kar sakte?
               </label>
               <textarea
                 id="nonNegotiableQuality"
                 rows={4}
-                className="w-full rounded-2xl border border-white/10 bg-slate-900/70 px-4 py-3 text-sm text-white outline-none transition focus:border-cyan-300/50"
+                className="input-base input-user w-full resize-none"
                 {...register("reflections.nonNegotiableQuality")}
               />
             </div>
 
-            <div className="rounded-3xl border border-cyan-400/20 bg-cyan-400/5 p-4 text-sm leading-6 text-slate-300">
+            <div className="rounded-3xl border border-[var(--border-subtle)] bg-[rgba(0,0,0,0.2)] p-4 text-sm leading-6 text-[var(--text-secondary)]">
               People who know their ideal partner clearly are 63% more likely to choose the right relationship.
             </div>
 
-            <div className="flex justify-between gap-3">
-              <button type="button" onClick={() => setStep(4)} className="rounded-2xl border border-white/10 bg-slate-900/70 px-5 py-3 text-sm font-medium transition hover:border-cyan-300/40 hover:bg-slate-900">
-                Wapas
+            <div className="flex justify-between gap-3 border-t border-[var(--border-subtle)] pt-6 mt-6">
+              <button type="button" onClick={() => setStep(4)} className="btn-ghost">
+                Back
               </button>
               <button
                 type="submit"
                 disabled={pending || alreadySubmitted}
-                className="rounded-2xl bg-cyan-300 px-5 py-3 text-sm font-semibold text-slate-950 transition hover:bg-cyan-200 disabled:cursor-not-allowed disabled:opacity-60"
+                className="btn-user shadow-[0_0_20px_rgba(244,63,94,0.3)] hover:shadow-[0_0_30px_rgba(244,63,94,0.5)] disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:shadow-[0_0_20px_rgba(244,63,94,0.3)]"
               >
-                {pending ? "Ideal profile ban rahi hai..." : "Result dekhein"}
+                {pending ? "Building your ideal profile..." : "See result"}
               </button>
             </div>
           </section>

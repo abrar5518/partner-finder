@@ -5,107 +5,97 @@ export default async function AdminPage() {
   const overview = await getAdminOverview();
 
   return (
-    <main className="min-h-screen bg-slate-950 px-6 py-16 text-slate-100">
-      <div className="mx-auto flex w-full max-w-6xl flex-col gap-8">
-        <section className="flex flex-col gap-4 rounded-3xl border border-white/10 bg-white/5 p-8 shadow-2xl shadow-cyan-950/20 backdrop-blur md:flex-row md:items-end md:justify-between">
-          <div className="space-y-2">
-            <span className="inline-flex rounded-full border border-amber-400/30 bg-amber-400/10 px-4 py-1 text-sm font-medium text-amber-200">
-              Admin Area
-            </span>
-            <h1 className="text-4xl font-semibold tracking-tight">Admin Dashboard</h1>
-            <p className="text-slate-300">
-              Platform-level overview for users, campaigns, responses, visits, and top-performing campaigns.
+    <div className="space-y-6">
+      <section className="glass-card gradient-border-admin rounded-[2rem] p-6 sm:p-8">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+          <div className="max-w-3xl">
+            <span className="badge-admin">Platform overview</span>
+            <h1 className="mt-4 text-3xl font-semibold text-white sm:text-4xl">Admin operations with a cleaner visual split.</h1>
+            <p className="mt-3 text-sm leading-7 text-[var(--text-body)]">
+              The admin area now feels deliberately different from the user dashboard, with a
+              stronger monitoring and moderation tone.
             </p>
           </div>
 
-          <div className="flex gap-3">
-            <Link
-              href="/admin/users"
-              className="rounded-2xl border border-white/10 bg-slate-900/70 px-4 py-3 text-sm font-medium transition hover:border-cyan-300/40 hover:bg-slate-900"
-            >
-              Manage Users
+          <div className="flex flex-col gap-3 sm:flex-row">
+            <Link href="/admin/users" className="btn-admin">
+              Manage users
             </Link>
-            <Link
-              href="/admin/campaigns"
-              className="rounded-2xl border border-white/10 bg-slate-900/70 px-4 py-3 text-sm font-medium transition hover:border-cyan-300/40 hover:bg-slate-900"
-            >
-              Manage Campaigns
+            <Link href="/admin/campaigns" className="btn-ghost">
+              Review campaigns
             </Link>
           </div>
-        </section>
+        </div>
+      </section>
 
-        <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-          <div className="rounded-3xl border border-white/10 bg-slate-900/50 p-6">
-            <p className="text-sm text-slate-500">Total Users</p>
-            <p className="mt-3 text-4xl font-semibold text-white">{overview.totalUsers}</p>
+      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        {[
+          { label: "Users", value: overview.totalUsers, delta: "All registered accounts" },
+          { label: "Campaigns", value: overview.totalCampaigns, delta: "Live and historical content" },
+          { label: "Responses", value: overview.totalResponses, delta: "Captured submissions" },
+          { label: "Visits", value: overview.totalVisits, delta: "Tracked public page opens" },
+        ].map((item) => (
+          <div key={item.label} className="stat-card">
+            <p className="text-sm text-[var(--text-muted)]">{item.label}</p>
+            <p className="mt-3 text-3xl font-semibold text-white">{item.value}</p>
+            <p className="mt-3 text-xs uppercase tracking-[0.18em] text-violet-200">{item.delta}</p>
           </div>
-          <div className="rounded-3xl border border-white/10 bg-slate-900/50 p-6">
-            <p className="text-sm text-slate-500">Total Campaigns</p>
-            <p className="mt-3 text-4xl font-semibold text-white">{overview.totalCampaigns}</p>
-          </div>
-          <div className="rounded-3xl border border-white/10 bg-slate-900/50 p-6">
-            <p className="text-sm text-slate-500">Total Responses</p>
-            <p className="mt-3 text-4xl font-semibold text-white">{overview.totalResponses}</p>
-          </div>
-          <div className="rounded-3xl border border-white/10 bg-slate-900/50 p-6">
-            <p className="text-sm text-slate-500">Total Visits</p>
-            <p className="mt-3 text-4xl font-semibold text-white">{overview.totalVisits}</p>
-          </div>
-        </section>
+        ))}
+      </section>
 
-        <section className="rounded-3xl border border-white/10 bg-slate-900/50 p-6">
-          <div className="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
-            <div>
-              <h2 className="text-xl font-semibold text-white">Top Campaigns By Responses</h2>
-              <p className="mt-1 text-sm text-slate-400">
-                Highest-performing campaigns based on response count.
+      <section className="grid gap-6 lg:grid-cols-[0.95fr_1.05fr]">
+        <div className="glass-card rounded-[2rem] p-6">
+          <h2 className="text-2xl font-semibold text-white">Quick nav</h2>
+          <div className="mt-5 grid gap-4">
+            <Link href="/admin/users" className="rounded-[1.6rem] border border-white/8 bg-white/4 p-5 hover:border-violet-500/25 hover:bg-violet-500/10">
+              <p className="text-sm font-medium text-white">Users registry</p>
+              <p className="mt-2 text-sm leading-6 text-[var(--text-body)]">
+                Search accounts, filter active creators, and clean up edge cases.
               </p>
-            </div>
-            <Link
-              href="/admin/campaigns"
-              className="text-sm font-medium text-cyan-200 transition hover:text-cyan-100"
-            >
-              View all campaigns
             </Link>
+            <Link href="/admin/campaigns" className="rounded-[1.6rem] border border-white/8 bg-white/4 p-5 hover:border-violet-500/25 hover:bg-violet-500/10">
+              <p className="text-sm font-medium text-white">Campaign moderation</p>
+              <p className="mt-2 text-sm leading-6 text-[var(--text-body)]">
+                Review public-facing content, jump into details, and remove problem campaigns.
+              </p>
+            </Link>
+          </div>
+        </div>
+
+        <div className="overflow-hidden rounded-[2rem] border border-white/8 bg-white/4">
+          <div className="border-b border-white/8 px-6 py-5">
+            <h2 className="text-xl font-semibold text-white">Top campaigns</h2>
+            <p className="mt-1 text-sm text-[var(--text-muted)]">
+              Highest-performing campaigns by response count.
+            </p>
           </div>
 
           {overview.topCampaigns.length === 0 ? (
-            <div className="mt-6 rounded-2xl border border-dashed border-white/10 bg-slate-950/40 p-6 text-sm text-slate-400">
-              No campaigns found yet.
-            </div>
+            <div className="p-6 text-sm text-[var(--text-muted)]">No campaigns found yet.</div>
           ) : (
-            <div className="mt-6 overflow-hidden rounded-2xl border border-white/10">
-              <div className="grid grid-cols-[1.4fr_1fr_0.8fr_0.8fr_0.9fr] gap-4 bg-slate-950/80 px-5 py-3 text-xs uppercase tracking-[0.2em] text-slate-500">
-                <span>Campaign</span>
-                <span>Owner</span>
-                <span>Responses</span>
-                <span>Visits</span>
-                <span>Created</span>
-              </div>
-
-              {overview.topCampaigns.map((campaign) => (
-                <div
-                  key={campaign.id}
-                  className="grid grid-cols-[1.4fr_1fr_0.8fr_0.8fr_0.9fr] gap-4 border-t border-white/10 bg-slate-900/40 px-5 py-4 text-sm text-slate-300"
-                >
-                  <div>
-                    <p className="font-medium text-white">{campaign.name}</p>
-                    <p className="mt-1 text-xs text-cyan-200">{campaign.slug}</p>
+            <div className="divide-y divide-white/6">
+              {overview.topCampaigns.map((campaign, index) => (
+                <div key={campaign.id} className="flex flex-col gap-4 px-6 py-5 lg:flex-row lg:items-center lg:justify-between">
+                  <div className="flex items-start gap-4">
+                    <span className="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-[var(--admin-gradient)] text-xs font-bold text-white">
+                      0{index + 1}
+                    </span>
+                    <div>
+                      <p className="font-medium text-white">{campaign.name}</p>
+                      <p className="mt-1 text-xs text-[var(--text-muted)]">{campaign.user.email}</p>
+                    </div>
                   </div>
-                  <span>{campaign.user.email}</span>
-                  <span className="font-medium text-white">{campaign._count.responses}</span>
-                  <span>{campaign._count.visits}</span>
-                  <span>
-                    {new Intl.DateTimeFormat("en-US", {
-                      dateStyle: "medium",
-                    }).format(campaign.createdAt)}
-                  </span>
+                  <div className="flex flex-wrap items-center gap-3 text-sm text-[var(--text-body)]">
+                    <span>{campaign._count.responses} responses</span>
+                    <span>{campaign._count.visits} visits</span>
+                    <span>{campaign.slug}</span>
+                  </div>
                 </div>
               ))}
             </div>
           )}
-        </section>
-      </div>
-    </main>
+        </div>
+      </section>
+    </div>
   );
 }

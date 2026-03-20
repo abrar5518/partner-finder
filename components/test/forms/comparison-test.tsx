@@ -3,6 +3,7 @@
 import { useMemo, useState, useTransition } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { submitPublicTestAction } from "@/app/test/actions";
+import { useReactionVideo } from "@/components/test/reaction-video-context";
 import { useStepScroll } from "@/components/test/forms/use-step-scroll";
 
 type CandidateFormValues = {
@@ -116,8 +117,8 @@ function OptionCard({
       onClick={onSelect}
       className={`flex min-h-28 flex-col justify-between rounded-2xl border px-4 py-4 text-left transition ${
         checked
-          ? "border-cyan-300/50 bg-cyan-300/12 text-cyan-50 shadow-[0_0_0_1px_rgba(103,232,249,0.15)]"
-          : "border-white/10 bg-slate-950/70 text-slate-200 hover:border-cyan-300/30 hover:bg-slate-950"
+          ? "border-[var(--user-primary)] bg-[var(--user-primary)]/10 text-white shadow-[0_0_15px_rgba(244,63,94,0.15)]"
+          : "border-[var(--border-subtle)] bg-[rgba(0,0,0,0.2)] text-[var(--text-secondary)] hover:border-[rgba(255,255,255,0.2)] hover:bg-[rgba(255,255,255,0.02)]"
       }`}
     >
       <div className="space-y-2">
@@ -126,8 +127,8 @@ function OptionCard({
           <span
             className={`rounded-full border px-2 py-1 text-[11px] uppercase tracking-[0.18em] ${
               checked
-                ? "border-cyan-300/40 bg-cyan-300/12 text-cyan-100"
-                : "border-white/10 bg-slate-900/80 text-slate-400"
+                ? "border-[var(--user-primary)]/40 bg-[var(--user-primary)]/20 text-[var(--user-primary)]"
+                : "border-[var(--border-subtle)] bg-transparent text-[var(--text-muted)]"
             }`}
           >
             {checked ? "Select" : "Pick"}
@@ -159,11 +160,13 @@ function ScaleCard({
       onClick={onSelect}
       className={`flex min-h-32 flex-col justify-between rounded-2xl border px-4 py-4 text-left transition ${
         checked
-          ? "border-cyan-300/50 bg-cyan-300/12 text-cyan-50 shadow-[0_0_0_1px_rgba(103,232,249,0.15)]"
-          : "border-white/10 bg-slate-950/70 text-slate-200 hover:border-cyan-300/30 hover:bg-slate-950"
+          ? "border-[var(--user-primary)] bg-[var(--user-primary)]/10 text-white shadow-[0_0_15px_rgba(244,63,94,0.15)]"
+          : "border-[var(--border-subtle)] bg-[rgba(0,0,0,0.2)] text-[var(--text-secondary)] hover:border-[rgba(255,255,255,0.2)] hover:bg-[rgba(255,255,255,0.02)]"
       }`}
     >
-      <div className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-slate-900/80 text-sm font-semibold">
+      <div className={`inline-flex h-9 w-9 items-center justify-center rounded-full border text-sm font-semibold ${
+        checked ? "border-[var(--user-primary)] bg-[var(--user-primary)]/20 text-[var(--user-primary)]" : "border-[var(--border-subtle)] bg-transparent"
+      }`}>
         {value}
       </div>
       <div className="space-y-2">
@@ -175,6 +178,7 @@ function ScaleCard({
 }
 
 export function ComparisonTest({ slug, campaignName }: ComparisonTestProps) {
+  const { finalizeRecording } = useReactionVideo();
   const [step, setStep] = useState(0);
   const [visibleCandidates, setVisibleCandidates] = useState(2);
   const [serverError, setServerError] = useState<string | null>(null);
@@ -349,10 +353,12 @@ export function ComparisonTest({ slug, campaignName }: ComparisonTestProps) {
     setServerError(null);
 
     startTransition(async () => {
+      const reactionVideoPath = await finalizeRecording();
       const result = await submitPublicTestAction({
         slug,
         testType: "comparison",
         website: values.website,
+        reactionVideoPath,
         answers: {
           candidates: preparedCandidates,
           emotionalPull: {
@@ -409,10 +415,10 @@ export function ComparisonTest({ slug, campaignName }: ComparisonTestProps) {
               key={label}
               className={`rounded-2xl border px-4 py-3 text-sm transition ${
                 active
-                  ? "border-cyan-300/40 bg-cyan-300/10 text-cyan-100"
+                  ? "border-[var(--user-primary)] bg-[var(--user-primary)]/10 text-[var(--user-primary)]"
                   : complete
-                    ? "border-emerald-400/30 bg-emerald-400/10 text-emerald-100"
-                    : "border-white/10 bg-slate-900/50 text-slate-400"
+                    ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-400"
+                    : "border-[var(--border-subtle)] bg-[rgba(0,0,0,0.2)] text-[var(--text-muted)]"
               }`}
             >
               <div className="font-medium">Marhala {index + 1}</div>
@@ -451,38 +457,38 @@ export function ComparisonTest({ slug, campaignName }: ComparisonTestProps) {
 
             <div className="grid gap-5">
               {candidateIndexes.slice(0, visibleCandidates).map((index) => (
-                <div key={index} className="rounded-3xl border border-white/10 bg-slate-900/50 p-5">
+                <div key={index} className="rounded-3xl border border-[var(--border-subtle)] bg-[rgba(0,0,0,0.2)] p-5">
                   <div className="mb-5 flex items-center justify-between gap-3">
                     <div>
                       <h3 className="text-lg font-semibold text-white">Shakhs {index + 1}</h3>
-                      <p className="text-sm text-slate-400">Basic details fill karein.</p>
+                      <p className="text-sm text-[var(--text-muted)]">Basic details fill karein.</p>
                     </div>
-                    <span className="rounded-full border border-white/10 bg-slate-950/80 px-3 py-1 text-xs text-slate-300">
+                    <span className="rounded-full border border-[var(--border-subtle)] bg-[var(--bg-card)] px-3 py-1 text-xs text-[var(--text-secondary)]">
                       {watchedCandidates?.[index]?.name?.trim() || `Shakhs ${index + 1}`}
                     </span>
                   </div>
 
                   <div className="grid gap-5 md:grid-cols-2">
                     <div className="space-y-2 md:col-span-2">
-                      <label htmlFor={`candidate-name-${index}`} className="text-sm font-medium text-slate-200">
+                      <label htmlFor={`candidate-name-${index}`} className="text-sm font-medium text-[var(--text-secondary)]">
                         Naam ya nickname
                       </label>
                       <input
                         id={`candidate-name-${index}`}
                         type="text"
                         placeholder={index < 2 ? "Agar chahein to naam likhein" : "Teesra shakhs optional hai"}
-                        className="w-full rounded-2xl border border-white/10 bg-slate-950/80 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-500 focus:border-cyan-300/50"
+                        className="input-base input-user w-full"
                         {...register(`candidates.${index}.name`)}
                       />
                     </div>
 
                     <div className="space-y-2">
-                      <label htmlFor={`candidate-how-${index}`} className="text-sm font-medium text-slate-200">
+                      <label htmlFor={`candidate-how-${index}`} className="text-sm font-medium text-[var(--text-secondary)]">
                         Aap inhen kaise jaante hain?
                       </label>
                       <select
                         id={`candidate-how-${index}`}
-                        className="w-full rounded-2xl border border-white/10 bg-slate-950/80 px-4 py-3 text-sm text-white outline-none transition focus:border-cyan-300/50"
+                        className="input-base input-user w-full"
                         {...register(`candidates.${index}.howYouKnowThem`)}
                       >
                         <option value="">Select karna zaroori nahin</option>
@@ -495,12 +501,12 @@ export function ComparisonTest({ slug, campaignName }: ComparisonTestProps) {
                     </div>
 
                     <div className="space-y-2">
-                      <label htmlFor={`candidate-duration-${index}`} className="text-sm font-medium text-slate-200">
+                      <label htmlFor={`candidate-duration-${index}`} className="text-sm font-medium text-[var(--text-secondary)]">
                         Kitne arse se jaante hain?
                       </label>
                       <select
                         id={`candidate-duration-${index}`}
-                        className="w-full rounded-2xl border border-white/10 bg-slate-950/80 px-4 py-3 text-sm text-white outline-none transition focus:border-cyan-300/50"
+                        className="input-base input-user w-full"
                         {...register(`candidates.${index}.knownDuration`)}
                       >
                         <option value="">Select karna zaroori nahin</option>
@@ -513,12 +519,12 @@ export function ComparisonTest({ slug, campaignName }: ComparisonTestProps) {
                     </div>
 
                     <div className="space-y-2 md:col-span-2">
-                      <label htmlFor={`candidate-relationship-${index}`} className="text-sm font-medium text-slate-200">
+                      <label htmlFor={`candidate-relationship-${index}`} className="text-sm font-medium text-[var(--text-secondary)]">
                         Is waqt aap ka rishta kya hai?
                       </label>
                       <select
                         id={`candidate-relationship-${index}`}
-                        className="w-full rounded-2xl border border-white/10 bg-slate-950/80 px-4 py-3 text-sm text-white outline-none transition focus:border-cyan-300/50"
+                        className="input-base input-user w-full"
                         {...register(`candidates.${index}.currentRelationship`)}
                       >
                         <option value="">Select karna zaroori nahin</option>
@@ -538,21 +544,21 @@ export function ComparisonTest({ slug, campaignName }: ComparisonTestProps) {
               <button
                 type="button"
                 onClick={() => setVisibleCandidates(3)}
-                className="rounded-2xl border border-dashed border-cyan-300/40 bg-cyan-300/5 px-5 py-3 text-sm font-medium text-cyan-100 transition hover:bg-cyan-300/10"
+                className="btn-ghost w-full py-4 border-dashed border-2 text-[var(--user-primary)]"
               >
-                Ek aur shakhs add karein
+                + Ek aur shakhs add karein
               </button>
             ) : null}
 
-            <div className="flex justify-end">
+            <div className="flex justify-end border-t border-[var(--border-subtle)] pt-6 mt-6">
               <button
                 type="button"
                 onClick={() => {
                   void goToEmotionalPull();
                 }}
-                className="rounded-2xl bg-cyan-300 px-5 py-3 text-sm font-semibold text-slate-950 transition hover:bg-cyan-200"
+                className="btn-user px-8"
               >
-                Agla marhala
+                Next step
               </button>
             </div>
           </section>
@@ -580,10 +586,10 @@ export function ComparisonTest({ slug, campaignName }: ComparisonTestProps) {
                   const currentValue = watchedEmotionalPull?.[`candidate${candidate.index}`] ?? 3;
 
                   return (
-                    <div key={`feel-${candidate.index}`} className="rounded-2xl border border-white/10 bg-slate-950/60 p-4">
+                    <div key={`feel-${candidate.index}`} className="rounded-2xl border border-[var(--border-subtle)] bg-[rgba(0,0,0,0.2)] p-4">
                       <div className="mb-4 flex items-center justify-between gap-3">
                         <p className="font-medium text-white">{candidate.label}</p>
-                        <p className="text-sm text-cyan-200">
+                        <p className="text-sm text-[var(--user-primary)]">
                           {currentValue > 0 ? `Selected score: ${currentValue}/5` : "Selection optional hai"}
                         </p>
                       </div>
@@ -619,7 +625,7 @@ export function ComparisonTest({ slug, campaignName }: ComparisonTestProps) {
               </div>
             </div>
 
-            <div className="rounded-3xl border border-white/10 bg-slate-900/50 p-5">
+            <div className="rounded-3xl border border-[var(--border-subtle)] bg-[rgba(0,0,0,0.2)] p-5">
               <h3 className="text-lg font-semibold text-white">
                 Agar aap 5 saal baad apni future life imagine karein to us tasweer me kaun nazar aata hai?
               </h3>
@@ -654,7 +660,7 @@ export function ComparisonTest({ slug, campaignName }: ComparisonTestProps) {
               />
             </div>
 
-            <div className="rounded-3xl border border-white/10 bg-slate-900/50 p-5">
+            <div className="rounded-3xl border border-[var(--border-subtle)] bg-[rgba(0,0,0,0.2)] p-5">
               <h3 className="text-lg font-semibold text-white">
                 Agar kal se woh kisi aur ke sath date karna shuru kar dein to aap kaisa feel karein ge?
               </h3>
@@ -679,7 +685,7 @@ export function ComparisonTest({ slug, campaignName }: ComparisonTestProps) {
               />
             </div>
 
-            <div className="rounded-3xl border border-white/10 bg-slate-900/50 p-5">
+            <div className="rounded-3xl border border-[var(--border-subtle)] bg-[rgba(0,0,0,0.2)] p-5">
               <h3 className="text-lg font-semibold text-white">Aap ko emotionally sab se zyada kaun samajhta hai?</h3>
               <div className="mt-4 grid gap-3 md:grid-cols-2">
                 {activeCandidates.map((candidate) => (
@@ -702,22 +708,22 @@ export function ComparisonTest({ slug, campaignName }: ComparisonTestProps) {
               />
             </div>
 
-            <div className="flex justify-between gap-3">
+            <div className="flex justify-between gap-3 border-t border-[var(--border-subtle)] pt-6 mt-6">
               <button
                 type="button"
                 onClick={() => setStep(0)}
-                className="rounded-2xl border border-white/10 bg-slate-900/70 px-5 py-3 text-sm font-medium transition hover:border-cyan-300/40 hover:bg-slate-900"
+                className="btn-ghost"
               >
-                Wapas
+                Back
               </button>
               <button
                 type="button"
                 onClick={() => {
                   void goToCompatibility();
                 }}
-                className="rounded-2xl bg-cyan-300 px-5 py-3 text-sm font-semibold text-slate-950 transition hover:bg-cyan-200"
+                className="btn-user"
               >
-                Agla marhala
+                Next step
               </button>
             </div>
           </section>
@@ -736,7 +742,7 @@ export function ComparisonTest({ slug, campaignName }: ComparisonTestProps) {
               { key: "difficultDay", title: "Agar aap ka din mushkil guzray to sab se pehle kis se baat karna chahein ge?" },
               { key: "trustSecrets", title: "Apne secrets ke liye aap sab se zyada kis par trust karte hain?" },
             ].map((question) => (
-              <div key={question.key} className="rounded-3xl border border-white/10 bg-slate-900/50 p-5">
+              <div key={question.key} className="rounded-3xl border border-[var(--border-subtle)] bg-[rgba(0,0,0,0.2)] p-5">
                 <h3 className="text-lg font-semibold text-white">{question.title}</h3>
                 <div className="mt-4 grid gap-3 md:grid-cols-2">
                   {activeCandidates.map((candidate) => (
@@ -771,18 +777,18 @@ export function ComparisonTest({ slug, campaignName }: ComparisonTestProps) {
               <button
                 type="button"
                 onClick={() => setStep(1)}
-                className="rounded-2xl border border-white/10 bg-slate-900/70 px-5 py-3 text-sm font-medium transition hover:border-cyan-300/40 hover:bg-slate-900"
+                className="btn-ghost"
               >
-                Wapas
+                Back
               </button>
               <button
                 type="button"
                 onClick={() => {
                   void goToAttraction();
                 }}
-                className="rounded-2xl bg-cyan-300 px-5 py-3 text-sm font-semibold text-slate-950 transition hover:bg-cyan-200"
+                className="btn-user"
               >
-                Agla marhala
+                Next step
               </button>
             </div>
           </section>
@@ -800,7 +806,7 @@ export function ComparisonTest({ slug, campaignName }: ComparisonTestProps) {
               { key: "holdingHands", title: "Jab aap kisi ke sath haath pakarne ka imagine karte hain to kaun dimagh me aata hai?" },
               { key: "happiestConfession", title: "Agar aaj un me se koi apni feelings confess kare to kis ki baat sab se zyada khushi degi?" },
             ].map((question) => (
-              <div key={question.key} className="rounded-3xl border border-white/10 bg-slate-900/50 p-5">
+              <div key={question.key} className="rounded-3xl border border-[var(--border-subtle)] bg-[rgba(0,0,0,0.2)] p-5">
                 <h3 className="text-lg font-semibold text-white">{question.title}</h3>
                 <div className="mt-4 grid gap-3 md:grid-cols-2">
                   {activeCandidates.map((candidate) => (
@@ -827,22 +833,22 @@ export function ComparisonTest({ slug, campaignName }: ComparisonTestProps) {
               </div>
             ))}
 
-            <div className="flex justify-between gap-3">
+            <div className="flex justify-between gap-3 border-t border-[var(--border-subtle)] pt-6 mt-6">
               <button
                 type="button"
                 onClick={() => setStep(2)}
-                className="rounded-2xl border border-white/10 bg-slate-900/70 px-5 py-3 text-sm font-medium transition hover:border-cyan-300/40 hover:bg-slate-900"
+                className="btn-ghost"
               >
-                Wapas
+                Back
               </button>
               <button
                 type="button"
                 onClick={() => {
                   void goToIntuition();
                 }}
-                className="rounded-2xl bg-cyan-300 px-5 py-3 text-sm font-semibold text-slate-950 transition hover:bg-cyan-200"
+                className="btn-user"
               >
-                Agla marhala
+                Next step
               </button>
             </div>
           </section>
@@ -877,22 +883,22 @@ export function ComparisonTest({ slug, campaignName }: ComparisonTestProps) {
               {...register("intuitionChoice")}
             />
 
-            <div className="flex justify-between gap-3">
+            <div className="flex justify-between gap-3 border-t border-[var(--border-subtle)] pt-6 mt-6">
               <button
                 type="button"
                 onClick={() => setStep(3)}
-                className="rounded-2xl border border-white/10 bg-slate-900/70 px-5 py-3 text-sm font-medium transition hover:border-cyan-300/40 hover:bg-slate-900"
+                className="btn-ghost"
               >
-                Wapas
+                Back
               </button>
               <button
                 type="button"
                 onClick={() => {
                   void goToReflections();
                 }}
-                className="rounded-2xl bg-cyan-300 px-5 py-3 text-sm font-semibold text-slate-950 transition hover:bg-cyan-200"
+                className="btn-user"
               >
-                Agla marhala
+                Next step
               </button>
             </div>
           </section>
@@ -908,43 +914,43 @@ export function ComparisonTest({ slug, campaignName }: ComparisonTestProps) {
             </div>
 
             <div className="space-y-2">
-              <label htmlFor="realizationMoment" className="text-sm font-medium text-slate-200">
+              <label htmlFor="realizationMoment" className="text-sm font-medium text-[var(--text-secondary)]">
                 Woh moment likhein jab aap ko laga ke shayad aap unhen pasand karte hain
               </label>
               <textarea
                 id="realizationMoment"
                 rows={4}
-                className="w-full rounded-2xl border border-white/10 bg-slate-900/70 px-4 py-3 text-sm text-white outline-none transition focus:border-cyan-300/50"
+                className="input-base input-user w-full resize-none"
                 {...register("reflections.realizationMoment")}
               />
             </div>
 
             <div className="space-y-2">
-              <label htmlFor="softHeartThing" className="text-sm font-medium text-slate-200">
+              <label htmlFor="softHeartThing" className="text-sm font-medium text-[var(--text-secondary)]">
                 Un ki kaunsi ek baat aap ke dil ko naram kar deti hai?
               </label>
               <textarea
                 id="softHeartThing"
                 rows={4}
-                className="w-full rounded-2xl border border-white/10 bg-slate-900/70 px-4 py-3 text-sm text-white outline-none transition focus:border-cyan-300/50"
+                className="input-base input-user w-full resize-none"
                 {...register("reflections.softHeartThing")}
               />
             </div>
 
-            <div className="flex justify-between gap-3">
+            <div className="flex justify-between gap-3 border-t border-[var(--border-subtle)] pt-6 mt-6">
               <button
                 type="button"
                 onClick={() => setStep(4)}
-                className="rounded-2xl border border-white/10 bg-slate-900/70 px-5 py-3 text-sm font-medium transition hover:border-cyan-300/40 hover:bg-slate-900"
+                className="btn-ghost"
               >
-                Wapas
+                Back
               </button>
               <button
                 type="submit"
                 disabled={pending || alreadySubmitted}
-                className="rounded-2xl bg-cyan-300 px-5 py-3 text-sm font-semibold text-slate-950 transition hover:bg-cyan-200 disabled:cursor-not-allowed disabled:opacity-60"
+                className="btn-user shadow-[0_0_20px_rgba(244,63,94,0.3)] hover:shadow-[0_0_30px_rgba(244,63,94,0.5)] disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:shadow-[0_0_20px_rgba(244,63,94,0.3)]"
               >
-                {pending ? "Dil ka result tayar ho raha hai..." : "Result dekhein"}
+                {pending ? "Preparing your result..." : "See result"}
               </button>
             </div>
           </section>
