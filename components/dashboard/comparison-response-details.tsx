@@ -5,11 +5,59 @@ type ComparisonResponseDetailsProps = {
   responseId: string;
 };
 
+function resolveReactionVideoUrl(path?: string | null) {
+  const trimmedPath = path?.trim();
+
+  if (!trimmedPath) {
+    return null;
+  }
+
+  if (/^https?:\/\//i.test(trimmedPath)) {
+    return trimmedPath;
+  }
+
+  return trimmedPath.startsWith("/") ? trimmedPath : `/${trimmedPath}`;
+}
+
 function detailCard(label: string, value?: string | null) {
   return (
     <div className="rounded-2xl border border-white/10 bg-slate-900/60 p-4">
       <p className="text-xs uppercase tracking-[0.2em] text-slate-500">{label}</p>
       <p className="mt-2 text-sm leading-6 text-slate-100">{value?.trim() || "N/A"}</p>
+    </div>
+  );
+}
+
+function ReactionVideoCard({ path }: { path?: string | null }) {
+  const videoUrl = resolveReactionVideoUrl(path);
+
+  if (!videoUrl) {
+    return null;
+  }
+
+  return (
+    <div className="rounded-2xl border border-amber-500/20 bg-amber-500/10 p-4">
+      <p className="text-xs uppercase tracking-[0.2em] text-amber-100">Reaction video</p>
+      <div className="mt-3 overflow-hidden rounded-2xl border border-white/10 bg-slate-950/70">
+        <video
+          controls
+          preload="metadata"
+          playsInline
+          className="h-auto max-h-[26rem] w-full bg-black"
+        >
+          <source src={videoUrl} type="video/webm" />
+          <source src={videoUrl} type="video/mp4" />
+          Your browser does not support the video tag.
+        </video>
+      </div>
+      <a
+        href={videoUrl}
+        target="_blank"
+        rel="noreferrer"
+        className="mt-3 inline-flex text-sm font-medium text-white underline underline-offset-4"
+      >
+        Open recorded video in new tab
+      </a>
     </div>
   );
 }
@@ -45,19 +93,7 @@ export function ComparisonResponseDetails({
   if (hasIdealData) {
     return (
       <div className="space-y-5">
-        {reactionVideoPath ? (
-          <div className="rounded-2xl border border-amber-500/20 bg-amber-500/10 p-4">
-            <p className="text-xs uppercase tracking-[0.2em] text-amber-100">Reaction video</p>
-            <a
-              href={reactionVideoPath}
-              target="_blank"
-              rel="noreferrer"
-              className="mt-2 inline-flex text-sm font-medium text-white underline underline-offset-4"
-            >
-              Open recorded video
-            </a>
-          </div>
-        ) : null}
+        <ReactionVideoCard path={reactionVideoPath} />
         <div className="grid gap-4 md:grid-cols-2">
           {detailCard("Relationship style", answers.warmup?.relationshipStyle)}
           {detailCard("Relationship priority", answers.warmup?.relationshipPriority)}
@@ -91,19 +127,7 @@ export function ComparisonResponseDetails({
 
     return (
       <div className="space-y-5">
-        {reactionVideoPath ? (
-          <div className="rounded-2xl border border-amber-500/20 bg-amber-500/10 p-4">
-            <p className="text-xs uppercase tracking-[0.2em] text-amber-100">Reaction video</p>
-            <a
-              href={reactionVideoPath}
-              target="_blank"
-              rel="noreferrer"
-              className="mt-2 inline-flex text-sm font-medium text-white underline underline-offset-4"
-            >
-              Open recorded video
-            </a>
-          </div>
-        ) : null}
+        <ReactionVideoCard path={reactionVideoPath} />
         <div className="grid gap-4 md:grid-cols-2">
           {detailCard("Confidence level", answers.confidenceLevel)}
           {detailCard("Life context", answers.lifeContext)}
@@ -155,19 +179,7 @@ export function ComparisonResponseDetails({
   if (hasPersonalityData) {
     return (
       <div className="space-y-5">
-        {reactionVideoPath ? (
-          <div className="rounded-2xl border border-amber-500/20 bg-amber-500/10 p-4">
-            <p className="text-xs uppercase tracking-[0.2em] text-amber-100">Reaction video</p>
-            <a
-              href={reactionVideoPath}
-              target="_blank"
-              rel="noreferrer"
-              className="mt-2 inline-flex text-sm font-medium text-white underline underline-offset-4"
-            >
-              Open recorded video
-            </a>
-          </div>
-        ) : null}
+        <ReactionVideoCard path={reactionVideoPath} />
         <div className="grid gap-4 md:grid-cols-2">
           {detailCard("Emotional expression", answers.personalityProfile?.emotionalExpression)}
           {detailCard("Relationship fear", answers.personalityProfile?.relationshipFear)}
@@ -242,19 +254,7 @@ export function ComparisonResponseDetails({
 
   return (
     <div className="space-y-5">
-      {reactionVideoPath ? (
-        <div className="rounded-2xl border border-amber-500/20 bg-amber-500/10 p-4">
-          <p className="text-xs uppercase tracking-[0.2em] text-amber-100">Reaction video</p>
-          <a
-            href={reactionVideoPath}
-            target="_blank"
-            rel="noreferrer"
-            className="mt-2 inline-flex text-sm font-medium text-white underline underline-offset-4"
-          >
-            Open recorded video
-          </a>
-        </div>
-      ) : null}
+      <ReactionVideoCard path={reactionVideoPath} />
       <div className="grid gap-4">
         {candidates.map((candidate, candidateIndex) => {
           const reaction = reactions.find((item) => item.candidateName === candidate.name);
